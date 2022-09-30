@@ -1,0 +1,75 @@
+addpath readonly 
+load readonly/Qdata.mat
+
+method = 3; % choose 1, 2, 3, 4 for the different methods
+[dz, gamma] = tunexLS(method); % set the tuning parameters
+% calculate the rmsError
+rmsError = computeResults(dz, gamma, method, Qdata, Qtrue);
+
+% Evaluate xLS algorithms for a set of tuning factors, compute RMS errors,
+% plot results
+% dx - index of threshold to use
+% gamma - forgetting factor
+% method - xLS method number - 1 for WLS, 2 for WTLS, 3 for TLS, 
+% 4 for AWTLS
+
+% Function to compute root-mean-squared total capacity estimation error for
+% this tuning set
+function rmsError = computeResults(dz, gamma, method, Qdata, Qtrue)
+    [Qhat,SigmaQ]=xLSalgos(Qdata(dz).xi,Qdata(dz).yi,Qdata(dz).SigmaXi,Qdata(dz).SigmaYi,gamma,8,1e-2);
+    dataLen = length(Qtrue); % used later on -- number of samples in simulation, nearly 5 million
+    % figure this outttttttt
+    Qest = repelems(Qhat(:,method),[1:length(Qdata(dz).k);diff([Qdata(dz).k; length(Qtrue)+1])']);
+    Qerr = Qtrue - Qest';
+    rmsError = sqrt(mean(Qerr.^2));
+
+    % Plot results with 3-sigma bounds
+    hold on; % use "stairs" to extend estimates until next update automatically
+    stairs([Qdata(dz).k; dataLen],[Qhat(:,method); Qhat(end,method)],'b','linewidth',3); % WLS
+    % Plot true capacity
+    plot(1:dataLen,Qtrue,'k-','linewidth',1);
+    % Plot bounds
+    stairs([Qdata(dz).k; dataLen],[Qhat(:,method)+3*sqrt(SigmaQ(:,method)); ...
+                                 Qhat(end,method)+3*sqrt(SigmaQ(end,method))],'b--','linewidth',0.5);
+    stairs([Qdata(dz).k; dataLen],[Qhat(:,method)-3*sqrt(SigmaQ(:,method)); ...
+                                 Qhat(end,method)-3*sqrt(SigmaQ(end,method))],'b--','linewidth',0.5);
+  
+    switch method
+        case 1, title('Capacity estimates, bounds: WLS'); 
+        case 2, title('Capacity estimates, bounds: WTLS'); 
+        case 3, title('Capacity estimates, bounds: TLS'); 
+        case 4, title('Capacity estimates, bounds: AWTLS'); 
+    end
+    xlabel('Data sample number'); ylabel('Capacity estimate (Ah)');
+    legend('Capacity estimate','True capacity','Confidence bounds on estimate')
+end 
+
+% Function to choose algorithm (WLS, WTLS, TLS, AWTLS methods) with hand
+% tuned variables dz, gamma for each 
+function [dz, gamma] = tunexLS(method)
+
+    switch(method)
+        case 1 % WLs method
+            dz = 15;
+            gamma = 1.0; 
+        case 2 % WTLS method
+            dz = 32;
+            gamma = 0.982342;
+        case 3 % TLS method
+            dz = 46;
+            gamma = 0.9470019; 
+        case 4 % AWTLS method
+            dz = 48;
+            gamma = 0.9470019;
+    end
+end
+
+% method_test = 3; % choose 1, 2, 3, 4 for the different methods
+% [dz, gamma] = tunexLS(method_test);
+% rmsError = computeResults(dz, gamma, method, Qdata, Qtrue)
+
+
+
+
+
+
