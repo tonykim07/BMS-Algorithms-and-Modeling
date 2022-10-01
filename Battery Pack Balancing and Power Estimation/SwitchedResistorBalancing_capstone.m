@@ -1,3 +1,5 @@
+% Designing a Switched-Resistor Passive Balancing System
+
 addpath readonly
 load ./readonly/E2model; 
 
@@ -69,7 +71,7 @@ function [storez_output, pk, maxpk, tbal, saveV] = cellBalance(packData, model, 
         ik = ik + leak;
         % Check to see which cells are 2mV or more above minimum cell voltage
         checkBalance = (v - min(v)) - 2e-3 >= 0;
-        if sum(checkBalance) == 0, % balancing is complete, so return
+        if sum(checkBalance) == 0 % balancing is complete, so return
           saveV = saveV(:,1:k-1);
           pk = pk(1:k-1);
           maxpk = maxpk(1:k-1);

@@ -23,7 +23,7 @@ function rmsError = computeResults(dz, gamma, method, Qdata, Qtrue)
     
     % This was originally coded in octave -> repelems is not a function in
     % MATLAB
-    Qest = repelems(Qhat(:,method),[1:length(Qdata(dz).k); diff([Qdata(dz).k; length(Qtrue)+1]')]);
+    Qest = rep(Qhat(:,method),[1:length(Qdata(dz).k);diff([Qdata(dz).k; length(Qtrue)+1])']);
     Qerr = Qtrue - Qest';
     rmsError = sqrt(mean(Qerr.^2));
 

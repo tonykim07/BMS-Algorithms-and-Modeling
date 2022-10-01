@@ -1,5 +1,6 @@
-addpath readonly 
+% Tuning a sigma-point kalman filter for SOC estimation
 
+addpath readonly 
 load readonly/PAN_CAPSTONE_DATA.mat; % load data from Panasonic NMC cell, +25 degC
 T = 25; % Test temperature
 
@@ -31,8 +32,8 @@ spkfData.xhat(spkfData.zkInd)=0.90; %
 
 % Now, enter loop for remainder of time, where we update the SPKF
 % once per sample interval
-fprintf('Please be patient. This code will take a minute or so to execute.\n')
-for k = 1:length(voltage),
+fprintf('This code will take a minute or so to execute.\n')
+for k = 1:length(voltage)
   vk = voltage(k); % "measure" voltage
   ik = current(k); % "measure" current
   Tk = T;          % "measure" temperature
@@ -40,11 +41,10 @@ for k = 1:length(voltage),
   % Update SOC (and other model states)
   [sochat(k),socbound(k),spkfData] = iterSPKF(vk,ik,Tk,deltat,spkfData);
   % update waitbar periodically, but not too often (slow procedure)
-  if mod(k,300)==0,
+  if mod(k,300)==0
     fprintf('  Completed %d out of %d iterations...\n',k,length(voltage));
   end  
 end
-
 
 subplot(1,2,1); plot(time/60,100*sochat,time/60,100*soc); hold on
 plot([time/60; NaN; time/60],[100*(sochat+socbound); NaN; 100*(sochat-socbound)]);
@@ -54,10 +54,8 @@ xlabel('Time (min)'); ylabel('SOC (%)'); legend('Estimate','Truth','Bounds');
 J1 = sqrt(mean((100*(soc-sochat)).^2));
 fprintf('RMS SOC estimation error = %g%%\n',J1);
 
-
 J2 = 100*socbound(end);
 fprintf('Final value of SOC estimation error bounds = %g%%\n',J2);
-
 
 subplot(1,2,2); plot(time/60,100*(soc-sochat)); hold on
 plot([time/60; NaN; time/60],[100*socbound; NaN; -100*socbound],'--');
@@ -69,7 +67,7 @@ grid on
 ind = find(abs(soc-sochat)>socbound);
 fprintf('Percent of time error outside bounds = %g%%\n',length(ind)/length(soc)*100);
 
-% Helper functoin used to initialize SPKF data structures
+% Helper function used to initialize SPKF data structures
 
 function spkfData = initSPKF(v0,T0,SigmaX0,SigmaV,SigmaW,model)
 
@@ -123,7 +121,7 @@ function [zk,zkbnd,spkfData] = iterSPKF(vk,ik,Tk,deltat,spkfData)
   R  = getParamESC('RParam',Tk,model)';
   R0 = getParamESC('R0Param',Tk,model);
   eta = getParamESC('etaParam',Tk,model);
-  if ik<0, ik=ik*eta; end;
+  if ik<0, ik=ik*eta; end
   
   % Get data stored in spkfData structure
   I = spkfData.priorI;
@@ -138,7 +136,7 @@ function [zk,zkbnd,spkfData] = iterSPKF(vk,ik,Tk,deltat,spkfData)
   irInd = spkfData.irInd;
   hkInd = spkfData.hkInd;
   zkInd = spkfData.zkInd;
-  if abs(ik)>Q/100, spkfData.signIk = sign(ik); end;
+  if abs(ik)>Q/100, spkfData.signIk = sign(ik); end
   signIk = spkfData.signIk;
   
   % Step 1a: State estimate time update
@@ -148,7 +146,7 @@ function [zk,zkbnd,spkfData] = iterSPKF(vk,ik,Tk,deltat,spkfData)
 
   % Step 1a-1: Create augmented SigmaX and xhat
   [sigmaXa,p] = chol(SigmaX,'lower'); 
-  if p>0,
+  if p>0
     fprintf('Cholesky error.  Recovering...\n');
     theAbsDiag = abs(diag(SigmaX));
     sigmaXa = diag(max(SQRT(theAbsDiag),SQRT(spkfData.SigmaW)));
@@ -199,7 +197,7 @@ function [zk,zkbnd,spkfData] = iterSPKF(vk,ik,Tk,deltat,spkfData)
   SigmaX = (SigmaX + SigmaX' + HH + HH')/4; % Help maintain robustness
   
   % Q-bump code
-  if r^2>4*SigmaY, % bad voltage estimate by 2-SigmaX, bump Q 
+  if r^2>4*SigmaY % bad voltage estimate by 2-SigmaX, bump Q 
     fprintf('Bumping sigmax\n');
     SigmaX(zkInd,zkInd) = SigmaX(zkInd,zkInd)*spkfData.Qbump;
   end

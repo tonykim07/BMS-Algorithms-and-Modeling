@@ -1,3 +1,5 @@
+% Improved HPPC power-limits estimator
+
 addpath readonly
 load ./readonly/CellModel.mat
 
