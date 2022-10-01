@@ -2,7 +2,6 @@
 
 addpath readonly
 load ./readonly/E2model; 
-
 load ./readonly/packData
 % Plot histogram of cell SOC in this pack
 histogram(100*packData.storez); 

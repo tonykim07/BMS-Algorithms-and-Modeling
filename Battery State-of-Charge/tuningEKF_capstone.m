@@ -30,14 +30,14 @@ ekfData.xhat(ekfData.zkInd)=0.90;
 % Now, enter loop for remainder of time, where we update the SPKF
 % once per sample interval
 fprintf('Please be patient. This code will take a minute or so to execute.\n')
-for k = 1:length(voltage),
+for k = 1:length(voltage)
   vk = voltage(k); % "measure" voltage
   ik = current(k); % "measure" current
   Tk = T;          % "measure" temperature
   
   % Update SOC (and other model states)
   [sochat(k),socbound(k),ekfData] = iterEKF(vk,ik,Tk,deltat,ekfData);
-  if mod(k,300)==0,
+  if mod(k,300)==0
     fprintf('  Completed %d out of %d iterations...\n',k,length(voltage));
   end  
 end
@@ -98,7 +98,7 @@ function [zk,zkbnd,ekfData] = iterEKF(vk,ik,Tk,deltat,ekfData)
   R  = getParamESC('RParam',Tk,model)';
   R0 = getParamESC('R0Param',Tk,model);
   eta = getParamESC('etaParam',Tk,model);
-  if ik<0, ik=ik*eta; end;
+  if ik<0, ik=ik*eta; end
   
   % Get data stored in ekfData structure
   I = ekfData.priorI;
@@ -109,7 +109,7 @@ function [zk,zkbnd,ekfData] = iterEKF(vk,ik,Tk,deltat,ekfData)
   irInd = ekfData.irInd;
   hkInd = ekfData.hkInd;
   zkInd = ekfData.zkInd;
-  if abs(ik)>Q/100, ekfData.signIk = sign(ik); end;
+  if abs(ik)>Q/100, ekfData.signIk = sign(ik); end
   signIk = ekfData.signIk;
   
   % EKF Step 0: Compute Ahat[k-1], Bhat[k-1]
@@ -153,7 +153,7 @@ function [zk,zkbnd,ekfData] = iterEKF(vk,ik,Tk,deltat,ekfData)
   % Step 2c: Error covariance measurement update
   SigmaX = SigmaX - L*SigmaY*L';
   %   % Q-bump code
-  if r^2 > 4*SigmaY, % bad voltage estimate by 2 std. devs, bump Q 
+  if r^2 > 4*SigmaY % bad voltage estimate by 2 std. devs, bump Q 
     fprintf('Bumping SigmaX\n');
     SigmaX(zkInd,zkInd) = SigmaX(zkInd,zkInd)*ekfData.Qbump;
   end

@@ -31,9 +31,9 @@ function [pChg, pDis] = HPPCpower(z0,T,dT,eta,ns,np,model,limits)
     iChgPulse = 10*Q*[zeros(5,1); -ones(dT,1); zeros(5,1)];  % [A] charge pulse
     iDisPulse = 10*Q*[zeros(5,1);  ones(dT,1); zeros(5,1)];  % [A] discharge pulse
     [vk,~,~,~,~] = simCell(iChgPulse,T,model,1,z0,0,0);
-    rChg  = abs((max(vk)-vk(1))/min(iChgPulse))
+    rChg  = abs((max(vk)-vk(1))/min(iChgPulse));
     [vk,~,~,~,~] = simCell(iDisPulse,T,model,1,z0,0,0);
-    rDis  = abs((min(vk)-vk(1))/max(iDisPulse))
+    rDis  = abs((min(vk)-vk(1))/max(iDisPulse));
 
     % HPPC Power Estimation: Truth
     OCV      = OCVfromSOCtemp(z0,T,model);

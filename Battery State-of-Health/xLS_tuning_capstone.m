@@ -37,7 +37,6 @@ function rmsError = computeResults(dz, gamma, method, Qdata, Qtrue)
                                  Qhat(end,method)+3*sqrt(SigmaQ(end,method))],'b--','linewidth',0.5);
     stairs([Qdata(dz).k; dataLen],[Qhat(:,method)-3*sqrt(SigmaQ(:,method)); ...
                                  Qhat(end,method)-3*sqrt(SigmaQ(end,method))],'b--','linewidth',0.5);
-  
     switch method
         case 1, title('Capacity estimates, bounds: WLS'); 
         case 2, title('Capacity estimates, bounds: WTLS'); 

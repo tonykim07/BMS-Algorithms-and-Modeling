@@ -1,7 +1,6 @@
 % ESC cell model tuning with an Extended Thevenin Model
 
 addpath readonly 
-
 load readonly/pulseData.mat
 load readonly/pulseModel.mat
 
