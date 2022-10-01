@@ -1,6 +1,6 @@
 # BMS-Algorithms-and-Modeling
 
-MATLAB Capstone projects for a 5 course specialization for Algorithms for Battery Management Systems.
+MATLAB Capstone projects for a 5 course specialization in Algorithms for Battery Management Systems.
 
 The specialization covered the following topics: 
 - The major functions that must be performed by a battery management system
